@@ -5,7 +5,7 @@ const headers = {
   'Content-Type': 'application/json',
 };
 
-exports.handler = async function (event) {
+export default async function handler(event) {
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
@@ -57,4 +57,4 @@ exports.handler = async function (event) {
   } catch (err) {
     return { statusCode: 502, headers, body: JSON.stringify({ error: 'Failed to reach Anthropic API: ' + err.message }) };
   }
-};
+}
