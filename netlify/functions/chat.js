@@ -1,21 +1,21 @@
-export default async function handler(req) {
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+exports.handler = async function (event) {
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: 'Method not allowed' }),
+    };
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'API key not configured' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'API key not configured' }),
+    };
   }
 
   try {
-    const body = await req.json();
+    const body = JSON.parse(event.body);
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -34,18 +34,14 @@ export default async function handler(req) {
 
     const data = await response.json();
 
-    return new Response(JSON.stringify(data), {
-      status: response.status,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return {
+      statusCode: response.status,
+      body: JSON.stringify(data),
+    };
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'Failed to reach API' }), {
-      status: 502,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return {
+      statusCode: 502,
+      body: JSON.stringify({ error: 'Failed to reach API' }),
+    };
   }
-}
-
-export const config = {
-  path: '/api/chat',
 };
