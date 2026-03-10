@@ -1568,10 +1568,14 @@ function Chatbot() {
         }),
       });
       const data = await response.json();
-      const assistantText = data.content?.map((c) => c.text || "").join("") || "Sorry, I couldn't generate a response. Try again!";
-      setMessages((prev) => [...prev, { role: "assistant", content: assistantText }]);
+      if (data.error) {
+        setMessages((prev) => [...prev, { role: "assistant", content: "Error: " + (data.error.message || data.error) }]);
+      } else {
+        const assistantText = data.content?.map((c) => c.text || "").join("") || "Sorry, I couldn't generate a response. Try again!";
+        setMessages((prev) => [...prev, { role: "assistant", content: assistantText }]);
+      }
     } catch (err) {
-      setMessages((prev) => [...prev, { role: "assistant", content: "Connection issue. Make sure the API is configured — check that ANTHROPIC_API_KEY is set in your Netlify environment variables." }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: "Connection error: " + err.message + ". Make sure ANTHROPIC_API_KEY is set in Netlify environment variables and redeploy." }]);
     }
     setLoading(false);
   };
